@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>88WORLD.exe - Creative Performance Agency</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Tailwind Configuration */
+        script {
+            display: none;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#050505',
+                        'neon-purple': '#a855f7',
+                        'neon-blue': '#3b82f6',
+                        'neon-pink': '#ec4899',
+                        'neon-green': '#10b981',
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3)',
+                        'neon-blue': '0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)',
+                        'neon-pink': '0 0 10px rgba(236, 72, 153, 0.5), 0 0 20px rgba(236, 72, 153, 0.3)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- CORE STYLES --- */
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor */
+            scroll-behavior: smooth; /* Smooth scrolling */
+        }
+
+        html {
+            scroll-behavior: smooth; /* Smooth scrolling for html as well */
+        }
+
+        /* Scanline Background Texture */
+        .scanline-bg {
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            min-height: 100vh;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .custom-cursor {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #a855f7;
+            background: rgba(168, 85, 247, 0.2);
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-hover {
+            width: 50px;
+            height: 50px;
+            background: #a855f7;
+            border-color: transparent;
+            mix-blend-mode: normal;
+        }
+
+        /* --- GLITCH TEXT EFFECT --- */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-text::before {
+            color: #ec4899;
+            z-index: -1;
+            animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            color: #3b82f6;
+            z-index: -2;
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+            20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+            40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+            60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+            80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
+            100% { clip-path: inset(30% 0 50% 0); transform: translate(1px, -1px); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, -1px); }
+            20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 2px); }
+            40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 1px); }
+            60% { clip-path: inset(10% 0 80% 0); transform: translate(-1px, -2px); }
+            80% { clip-path: inset(50% 0 30% 0); transform: translate(1px, 2px); }
+            100% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 1px); }
+        }
+
+        /* --- SCROLL REVEAL --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- VIDEO CARD --- */
+        .video-card {
+            aspect-ratio: 9/16;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-bg-dark scanline-bg antialiased selection:bg-neon-purple selection:text-white">
+
+    <!-- Custom Cursor Element -->
+    <div id="cursor" class="custom-cursor hidden md:block"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 top-0 start-0 border-b border-white/10 bg-bg-dark/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse group">
+                <span class="self-center text-2xl font-black whitespace-nowrap text-white tracking-tighter group-hover:text-neon-purple transition-colors duration-300">
+                    88<span class="text-neon-purple">WORLD</span>.exe
+                </span>
+            </a>
+            
+            <!-- Mobile Menu Button -->
+            <button id="menu-btn" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-400 rounded-lg md:hidden hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                </svg>
+            </button>
+
+            <!-- Menu Links -->
+            <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-800 rounded-lg bg-gray-900/50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-transparent">
+                    <li><a href="#work" class="block py-2 px-3 text-gray-300 hover:text-neon-blue md:p-0 transition-colors">Work</a></li>
+                    <li><a href="#process" class="block py-2 px-3 text-gray-300 hover:text-neon-blue md:p-0 transition-colors">Process</a></li>
+                    <li><a href="#results" class="block py-2 px-3 text-gray-300 hover:text-neon-blue md:p-0 transition-colors">Results</a></li>
+                    <li>
+                        <a href="#contact" class="hover-trigger block py-2 px-5 text-bg-dark bg-neon-purple rounded font-bold hover:bg-white hover:shadow-neon transition-all duration-300 transform hover:-translate-y-0.5">
+                            Book Call
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center px-4 pt-20">
+        <!-- Abstract Background Glows -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full blur-[128px] pointer-events-none"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/20 rounded-full blur-[128px] pointer-events-none"></div>
+
+        <div class="text-center max-w-5xl mx-auto z-10">
+            <div class="inline-block mb-4 px-4 py-1 rounded-full border border-neon-green/30 bg-neon-green/10 text-neon-green text-xs font-bold tracking-widest uppercase reveal">
+                ● System Online
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight tracking-tight reveal">
+                WE ENGINEER <br>
+                <span class="glitch-wrapper">
+                    <span class="glitch-text text-white" data-text="VIRAL CREATIVE">VIRAL CREATIVE</span>
+                </span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-gray-400 mb-10 max-w-2xl mx-auto font-light reveal">
+                Stop burning ad spend on boring content. We build high-performance video assets that <span class="text-neon-pink font-bold">convert cold traffic</span>.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4 reveal">
+                <a href="#contact" class="hover-trigger px-8 py-4 bg-white text-black font-black text-lg rounded hover:bg-neon-purple hover:text-white hover:shadow-neon transition-all duration-300">
+                    START PROJECT
+                </a>
+                <a href="#work" class="hover-trigger px-8 py-4 border border-gray-700 text-white font-bold text-lg rounded hover:border-neon-blue hover:text-neon-blue transition-all duration-300 bg-black/50 backdrop-blur-sm">
+                    VIEW PROTOCOLS
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="results" class="py-20 border-y border-white/5 bg-black/40">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="reveal delay-100">
+                    <p class="text-5xl md:text-6xl font-black text-neon-purple mb-2"><span class="counter" data-target="250">0</span>%</p>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest">Avg ROAS Lift</p>
+                </div>
+                <div class="reveal delay-200">
+                    <p class="text-5xl md:text-6xl font-black text-neon-blue mb-2">$<span class="counter" data-target="40">0</span>M+</p>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest">Ad Spend Managed</p>
+                </div>
+                <div class="reveal delay-300">
+                    <p class="text-5xl md:text-6xl font-black text-neon-pink mb-2"><span class="counter" data-target="880">0</span>+</p>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest">Winning Creatives</p>
+                </div>
+                <div class="reveal delay-400">
+                    <p class="text-5xl md:text-6xl font-black text-neon-green mb-2"><span class="counter" data-target="24">0</span>H</p>
+                    <p class="text-sm text-gray-500 uppercase tracking-widest">Turnaround Time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Work Grid (Vertical Video Style) -->
+    <section id="work" class="py-24 max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-end mb-16 reveal">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-2">DATABASE</h2>
+                <p class="text-neon-blue font-mono">// SELECTED_WORKS_2024</p>
+            </div>
+            <a href="#" class="hidden md:block text-gray-400 hover:text-white transition-colors">View All Archive -></a>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card 1 -->
+            <div class="video-card group relative bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-neon-purple hover-trigger reveal">
+                <!-- Video Player -->
+                <video class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" loop muted playsinline>
+                    <source src="media/dog_smoke.mp4" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none">
+                    <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <span class="text-neon-purple text-xs font-bold mb-2 block">DTC ECOMMERCE</span>
+                        <h3 class="text-xl font-bold text-white leading-none mb-1">Cyber Sneakers</h3>
+                        <p class="text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">ROAS: 4.2x • CTR: 3.1%</p>
+                    </div>
+                </div>
+                <!-- Volume Toggle Button -->
+                <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 volume-toggle-btn pointer-events-auto z-10">
+                    <div class="w-10 h-10 bg-neon-purple/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-neon cursor-pointer hover:bg-neon-purple hover:shadow-neon transition-all">
+                        <svg class="w-4 h-4 text-white volume-off-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                        <svg class="w-4 h-4 text-white volume-on-icon hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="video-card group relative bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-neon-blue hover-trigger reveal delay-100">
+                <video class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" loop muted playsinline style="transform: scale(1.5);">
+                    <source src="media/duck_army.mp4" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none">
+                    <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <span class="text-neon-blue text-xs font-bold mb-2 block">B2B SAAS</span>
+                        <h3 class="text-xl font-bold text-white leading-none mb-1">Flow State App</h3>
+                        <p class="text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">CPL: -$12 • Conv: 18%</p>
+                    </div>
+                </div>
+                <!-- Volume Toggle Button -->
+                <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 volume-toggle-btn pointer-events-auto z-10">
+                    <div class="w-10 h-10 bg-neon-blue/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-neon-blue cursor-pointer hover:bg-neon-blue hover:shadow-neon-blue transition-all">
+                        <svg class="w-4 h-4 text-white volume-off-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                        <svg class="w-4 h-4 text-white volume-on-icon hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="video-card group relative bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-neon-pink hover-trigger reveal delay-200">
+                <video class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" loop muted playsinline>
+                    <source src="media/gangnam_bridge.mp4" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none">
+                    <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <span class="text-neon-pink text-xs font-bold mb-2 block">BEAUTY / SKIN</span>
+                        <h3 class="text-xl font-bold text-white leading-none mb-1">Glow Serum</h3>
+                        <p class="text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">Views: 2M+ • Viral Hit</p>
+                    </div>
+                </div>
+                <!-- Volume Toggle Button -->
+                <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 volume-toggle-btn pointer-events-auto z-10">
+                    <div class="w-10 h-10 bg-neon-pink/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-neon-pink cursor-pointer hover:bg-neon-pink hover:shadow-neon-pink transition-all">
+                        <svg class="w-4 h-4 text-white volume-off-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                        <svg class="w-4 h-4 text-white volume-on-icon hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="video-card group relative bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-neon-green hover-trigger reveal delay-300">
+                <video class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" loop muted playsinline>
+                    <source src="media/geese_stop.mp4" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none">
+                    <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <span class="text-neon-green text-xs font-bold mb-2 block">FINTECH</span>
+                        <h3 class="text-xl font-bold text-white leading-none mb-1">Crypto Vault</h3>
+                        <p class="text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity delay-100">Signups: +400%</p>
+                    </div>
+                </div>
+                <!-- Volume Toggle Button -->
+                <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 volume-toggle-btn pointer-events-auto z-10">
+                    <div class="w-10 h-10 bg-neon-green/80 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-neon-green transition-all" style="box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);">
+                        <svg class="w-4 h-4 text-black volume-off-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                        <svg class="w-4 h-4 text-black volume-on-icon hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section id="process" class="py-24 bg-neutral-900/30 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-16 text-center reveal">THE ALGORITHM</h2>
+            
+            <div class="grid md:grid-cols-3 gap-12 relative">
+                <!-- Connecting Line (Desktop) -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-neon-purple via-neon-blue to-neon-pink opacity-30"></div>
+
+                <!-- Step 1 -->
+                <div class="relative reveal delay-100">
+                    <div class="w-24 h-24 bg-bg-dark border-2 border-neon-purple rounded-full flex items-center justify-center text-3xl font-black text-neon-purple mb-6 mx-auto relative z-10 shadow-neon">01</div>
+                    <h3 class="text-2xl font-bold text-white text-center mb-3">Audit & Strategy</h3>
+                    <p class="text-gray-400 text-center leading-relaxed">We deconstruct your current funnel and identify the "creative fatigue" points causing low ROAS.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative reveal delay-200">
+                    <div class="w-24 h-24 bg-bg-dark border-2 border-neon-blue rounded-full flex items-center justify-center text-3xl font-black text-neon-blue mb-6 mx-auto relative z-10 shadow-neon-blue">02</div>
+                    <h3 class="text-2xl font-bold text-white text-center mb-3">Rapid Production</h3>
+                    <p class="text-gray-400 text-center leading-relaxed">Our editors deploy 10-20 variations of hooks, bodies, and CTAs to find the winning combination.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative reveal delay-300">
+                    <div class="w-24 h-24 bg-bg-dark border-2 border-neon-pink rounded-full flex items-center justify-center text-3xl font-black text-neon-pink mb-6 mx-auto relative z-10 shadow-neon-pink">03</div>
+                    <h3 class="text-2xl font-bold text-white text-center mb-3">Scale Winners</h3>
+                    <p class="text-gray-400 text-center leading-relaxed">We kill the losers, double down on winners, and iterate. Pure data-driven scaling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" class="py-32 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-neon-purple/10 pointer-events-none"></div>
+        
+        <div class="max-w-4xl mx-auto text-center relative z-10 border border-white/10 bg-black/50 backdrop-blur-lg p-12 rounded-3xl reveal">
+            <h2 class="text-4xl md:text-6xl font-black text-white mb-6">READY TO SCALE?</h2>
+            <p class="text-xl text-gray-300 mb-10">We only work with 4 new partners per month to ensure quality. Reserve your audit now.</p>
+            
+            <a href="#" class="hover-trigger inline-block px-12 py-5 bg-neon-purple text-white font-black text-xl rounded shadow-neon hover:bg-neon-pink hover:scale-105 transition-all duration-300">
+                BOOK STRATEGY CALL
+            </a>
+            
+            <p class="mt-6 text-sm text-gray-500">No Commitments. 100% Free Audit.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-12 bg-black text-center">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                 <span class="text-xl font-black text-white tracking-tighter">88<span class="text-neon-purple">WORLD</span>.exe</span>
+            </div>
+            <div class="text-gray-500 text-sm">
+                &copy; 2025 88WORLD.exe. All Systems Operational.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Custom Cursor Logic ---
+            const cursor = document.getElementById('cursor');
+            const hoverTriggers = document.querySelectorAll('.hover-trigger, a, button');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            hoverTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => {
+                    cursor.classList.add('cursor-hover');
+                });
+                trigger.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('cursor-hover');
+                });
+            });
+
+            // --- 2. Mobile Menu Toggle ---
+            const menuBtn = document.getElementById('menu-btn');
+            const navMenu = document.getElementById('navbar-default');
+            
+            menuBtn.addEventListener('click', () => {
+                navMenu.classList.toggle('hidden');
+            });
+
+            // --- 3. Scroll Reveal Animation ---
+            const revealElements = document.querySelectorAll('.reveal');
+            
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
+
+                revealElements.forEach((reveal) => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); // Trigger once on load
+
+            // --- 4. Number Counter Animation ---
+            const counters = document.querySelectorAll('.counter');
+            let hasCounted = false;
+
+            const startCounters = () => {
+                const triggerPoint = document.getElementById('results').getBoundingClientRect().top;
+                const screenPosition = window.innerHeight;
+
+                if (!hasCounted && triggerPoint < screenPosition) {
+                    counters.forEach(counter => {
+                        const target = +counter.getAttribute('data-target');
+                        const speed = 200; 
+                        
+                        const updateCount = () => {
+                            const count = +counter.innerText;
+                            const inc = target / speed;
+
+                            if (count < target) {
+                                counter.innerText = Math.ceil(count + inc);
+                                setTimeout(updateCount, 20);
+                            } else {
+                                counter.innerText = target;
+                            }
+                        };
+                        updateCount();
+                    });
+                    hasCounted = true;
+                }
+            };
+
+            window.addEventListener('scroll', startCounters);
+
+            // --- 5. Video Card Autoplay on Hover & Volume Toggle ---
+            const videoCards = document.querySelectorAll('.video-card');
+            
+            videoCards.forEach(card => {
+                const video = card.querySelector('video');
+                const volumeBtn = card.querySelector('.volume-toggle-btn');
+                const volumeOffIcon = card.querySelector('.volume-off-icon');
+                const volumeOnIcon = card.querySelector('.volume-on-icon');
+                
+                // Start video loop on page load (muted)
+                if (video) {
+                    video.play();
+                }
+                
+                // On hover - keep video playing, allow audio if unmuted
+                card.addEventListener('mouseenter', () => {
+                    if (video && video.paused) {
+                        video.play();
+                    }
+                });
+                
+                // On mouse leave - mute audio and keep video playing
+                card.addEventListener('mouseleave', () => {
+                    if (video) {
+                        video.muted = true;
+                        volumeOffIcon.classList.remove('hidden');
+                        volumeOnIcon.classList.add('hidden');
+                    }
+                });
+                
+                // Click to toggle volume (only works when hovering)
+                if (volumeBtn) {
+                    volumeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (video.muted) {
+                            video.muted = false;
+                            volumeOffIcon.classList.add('hidden');
+                            volumeOnIcon.classList.remove('hidden');
+                        } else {
+                            video.muted = true;
+                            volumeOffIcon.classList.remove('hidden');
+                            volumeOnIcon.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
